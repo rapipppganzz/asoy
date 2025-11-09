@@ -15,7 +15,8 @@ import sys
 from urllib.parse import urlparse
 
 # 🔗 Ganti dengan RAW URL proxy.txt lu (boleh ada http:// di file)
-GITHUB_PROXY_URL = "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"
+GITHUB_PROXY_URL = "https://raw.githubusercontent.com/rapipppganzz/asoy/main/proxy.txt"
+
 
 # 🎭 Custom User-Agent
 CUSTOM_UAS = [
