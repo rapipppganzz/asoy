@@ -16,7 +16,7 @@ import sys
 from urllib.parse import urlparse
 
 # 🔗 RAW URL GitHub lu — HAPUS SPASI DI AKHIR!
-GITHUB_PROXY_URL = "https://raw.githubusercontent.com/rapipppganzz/asoy/main/proxy.txt"
+GITHUB_PROXY_URL = "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"
 
 # 🎭 Custom User-Agent
 CUSTOM_UAS = [
@@ -162,7 +162,7 @@ def main():
     log(f"🧷 Proxy: {len(proxies)} | Mode: {'Tak terbatas' if duration == 0 else f'{duration} detik'}")
 
     # 🔥 BATASI TOTAL THREAD = 200 (aman!)
-    MAX_TOTAL_THREADS = 2000
+    MAX_TOTAL_THREADS = 300
     selected_proxies = random.sample(proxies, min(len(proxies), MAX_TOTAL_THREADS))
     log(f"🌀 Memilih {len(selected_proxies)} proxy aktif")
 
