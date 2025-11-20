@@ -12,10 +12,10 @@ import bluetooth as bt
 from bluetooth import BluetoothSocket, RFCOMM
 import numpy as np
 import pyaudio
-from scapy.all import *
-from scapy.layers.dot11 import Dot11, Dot11Deauth, RadioTap, Dot11ProbeReq
 import os
 import signal
+
+from scapy.all import *   # ⬅️ taro ini di sini
 
 class WirelessSecurityTester:
     def __init__(self):
