@@ -552,19 +552,19 @@ class WirelessSecurityTester:
         self.launch_comprehensive_attack(config)
 
     def show_current_status(self):
-    """Show current attack status"""
-    print("\n" + "="*50)
-    print("📊 CURRENT ATTACK STATUS")
-    print("="*50)
-    
-    for attack, active in self.active_attacks.items():
-        status = "🔴 ACTIVE" if active else "🟢 INACTIVE"
-        print(f"{attack.upper():<20} {status}")
-    
-    if self.results['start_time']:
-        print(f"\nStart Time: {self.results['start_time']}")
-    if self.results['vulnerabilities_found']:
-        print(f"\nVulnerabilities Found: {len(self.results['vulnerabilities_found'])}")
+        """Show current attack status"""
+        print("\n" + "="*50)
+        print("📊 CURRENT ATTACK STATUS")
+        print("="*50)
+        
+        for attack, active in self.active_attacks.items():
+            status = "🔴 ACTIVE" if active else "🟢 INACTIVE"
+            print(f"{attack.upper():<20} {status}")
+        
+        if self.results['start_time']:
+            print(f"\nStart Time: {self.results['start_time']}")
+        if self.results['vulnerabilities_found']:
+            print(f"\nVulnerabilities Found: {len(self.results['vulnerabilities_found'])}")
 
 def main():
     """Main function"""
@@ -608,4 +608,5 @@ def main():
         print(f"Error: {str(e)}")
         tester.stop_all_attacks()
 
-if name == "main": main()
+if __name__ == "__main__":
+    main()
