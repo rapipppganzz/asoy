@@ -608,4 +608,4 @@ def main():
         print(f"Error: {str(e)}")
         tester.stop_all_attacks()
 
-if name == “main”: main()
+if name == "main": main()
