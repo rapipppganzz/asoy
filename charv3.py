@@ -12,7 +12,9 @@ import os
 import signal
 
 from scapy.all import *
-class WirelessSecurityTester: def init(self): self.testing = False
+class WirelessSecurityTester:
+    def __init__(self):
+        self.testing = False
 self.active_attacks = { 'bluetooth_flood': False, 'wifi_jamming': False,
 'probe_flood': False, 'ultrasonic': False }
 
