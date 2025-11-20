@@ -4,8 +4,6 @@ import subprocess
 import random
 from datetime import datetime
 from bleak import BleakScanner, BleakClient
-import bluetooth as bt
-from bluetooth import BluetoothSocket, RFCOMM
 import numpy as np
 import pyaudio
 import os
@@ -581,7 +579,6 @@ def main():
         import bleak
         import pyaudio
         import numpy as np
-        from scapy.all import *
     except ImportError as e:
         print("Error: Dependencies tidak terinstall.")
         print("Install dengan: pip install bleak pyaudio numpy scapy")
